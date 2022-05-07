@@ -19,6 +19,8 @@ import java.util.InputMismatchException;
 import java.util.Scanner;
 
 public class Methods {
+    public static final String ANSI_YELLOW = "\u001B[33m";
+    public static final String ANSI_RESET = "\u001B[0m";
     private static final Scanner scanner = new Scanner(System.in);
 
     public static void writeToXml(ArrayList<Appointment> appointments, String filepath) {
@@ -27,7 +29,6 @@ public class Methods {
             Element rootElement = document.createElement("appointments");
             document.appendChild(rootElement);
 
-
             for(Appointment appointment : appointments) {
                 Element appointmentElement = document.createElement("appointment");
                 rootElement.appendChild(appointmentElement);
@@ -35,7 +36,7 @@ public class Methods {
                 appointmentElement.appendChild(patientElement);
 
                 createChildElement(document, patientElement, "name", appointment.getPatient().getName());
-                createChildElement(document, patientElement, "birthday", appointment.getPatient().getBirthday().toString());
+                createChildElement(document, patientElement, "taj", appointment.getPatient().getTaj());
                 createChildElement(document, appointmentElement, "date", appointment.getDate().toString());
                 createChildElement(document, appointmentElement, "time", appointment.getTime().toString());
                 createChildElement(document, appointmentElement, "duration", String.valueOf(appointment.getDuration().toMinutes()));
@@ -75,7 +76,7 @@ public class Methods {
                 if (node.getNodeType() == Node.ELEMENT_NODE) {
                     NodeList childNodesOfAppointmentTag = node.getChildNodes();
 
-                    String name = "", birthday = "", date = "1900-10-22", time = "00:00", duration = "0";
+                    String name = "", taj = "", date = "1900-10-22", time = "00:00", duration = "0";
                     for (int j = 0; j < childNodesOfAppointmentTag.getLength(); j++) {
 
 
@@ -89,7 +90,7 @@ public class Methods {
 
                                         switch(patientNodes.item(h).getNodeName()) {
                                             case "name": name = patientNodes.item(h).getTextContent(); break;
-                                            case "birthday": birthday = patientNodes.item(h).getTextContent(); break;
+                                            case "taj": taj = patientNodes.item(h).getTextContent(); break;
                                         }
                                     }
                                 }
@@ -106,7 +107,7 @@ public class Methods {
                     }
 
                     try{
-                        Patient patient = new Patient(name, LocalDate.parse(birthday));
+                        Patient patient = new Patient(name, taj);
                         Appointment appointment = new Appointment(patient, LocalDate.parse(date), LocalTime.parse(time), Duration.ofMinutes(Integer.parseInt(duration)));
                         appointments.add(appointment);
                     }
@@ -126,7 +127,7 @@ public class Methods {
     }
 
     public static void listAppointments(ArrayList<Appointment> appointments) {
-        System.out.println("The following appointments have been recorded thus far:\r\n");
+        System.out.println(ANSI_YELLOW + "The following appointments have been recorded thus far:\r\n" + ANSI_RESET);
         for(Appointment appointment: appointments) {
             System.out.println(appointment);
             System.out.println();
@@ -135,49 +136,67 @@ public class Methods {
     }
 
     public static void addNewAppointment(ArrayList<Appointment> appointments, String filepath) {
+        System.out.println(ANSI_YELLOW + "\r\nYou are now adding a new patient into the database! Please note the following rules about " +
+                "appointments:\r\n- The doctor takes patients all days of the week from 08:00 to 16:00\r\n- " +
+                "A patient that already has an appointment can not have another one recorded in the system (this is based on TAJ numbers alone)\r\n" + ANSI_RESET);
 
-        System.out.println("Enter the name of the new patient: ");
-        String name = enterName();
+        boolean patientCheck = false;
+        Patient patient = new Patient();
 
-        System.out.println("Enter the birthday of the patient in the following format: YYYY-MM-DD");
-        LocalDate birthday = enterDate();
+        while(!patientCheck) {
+            System.out.println("Enter the name of the new patient: ");
+            String name = enterName();
 
-        for(Appointment appointment: appointments) {
-            if(name.equals(appointment.getPatient().getName()) && birthday.equals(appointment.getPatient().getBirthday())) {
-                System.err.println("This patient already has an appointment!");
-                return;
+            boolean nameCheck = false;
+            StringBuilder nameCheckString = new StringBuilder("\r\nThe name entered has been found in the system with the following TAJ number " +
+                    "(if the new patient has a different TAJ number, this shouldn't pose an issue):\r\n");
+            ArrayList<String> tajOfCheckedAppointment = new ArrayList<>();
+            for(Appointment appointment: appointments) {
+                if(appointment.getPatient().getName().equals(name) && tajOfCheckedAppointment.contains(appointment.getPatient().getTaj()) == false) {
+                    tajOfCheckedAppointment.add(appointment.getPatient().getTaj());
+                    nameCheck = true;
+                }
+            }
+
+            if(nameCheck) {
+                for (String taj : tajOfCheckedAppointment) {
+                    nameCheckString.append(taj).append("\r\n");
+                }
+                System.out.println(ANSI_YELLOW + nameCheckString + ANSI_RESET);
+            }
+
+            System.out.println("Enter the TAJ number of the patient: ");
+            String taj = enterTaj();
+
+            patient = new Patient(name, taj);
+
+            for(Appointment appointment: appointments) {
+                if(appointment.getPatient().getTaj().equals(taj) && !appointment.getPatient().getName().equals(name)) { //taj létezik, másik név alatt
+                    System.err.println("The following patient has been recorded under this TAJ number: " + appointment.getPatient().getName() + "\r\n");
+                    patientCheck = false;
+                    break;
+                }
+                else if(appointment.getPatient().getTaj().equals(taj) && appointment.getPatient().getName().equals(name)) { //taj létezik, ez alatt a név alatt
+                    System.err.println("\r\nThis patient already has an appointment! One patient can not have an " +
+                            "appointment twice! Please either delete the previous appointment or modify its details instead!\r\n");
+                    return;
+                }
+                else {
+                    patientCheck = true;
+                }
             }
         }
 
-        Patient patient = new Patient(name, birthday);
 
         boolean dateCheck = false;
         LocalDate appointmentDate = LocalDate.parse("1000-01-01");
         LocalTime appointmentTime = LocalTime.parse("00:00");
         Duration duration = Duration.ofMinutes(0);
 
-        while(dateCheck == false) {
+        while(!dateCheck) {
             System.out.println("Please enter the date of the appointment in the following format: YYYY-MM-DD");
 
-            appointmentDate = enterDate();
-
-            boolean dateTaken = false;
-            String dateTakenString = "\r\nPlease note that the following appointments already exist at the given date:\r\n\r\n";
-
-            for(Appointment appointment: appointments) {
-                if(appointment.getDate().equals(appointmentDate)) {
-                    dateTakenString += appointment.toString();
-                    dateTakenString += "\r\n\r\n";
-                    dateTaken = true;
-                }
-            }
-
-            if(dateTaken == false) {
-                System.out.println("There are no appointments on the given date and time!");
-            }
-            else {
-                System.out.println(dateTakenString);
-            }
+            appointmentDate = enterDate(appointments);
 
             System.out.println("Please enter the time of the appointment in the following format: HH:MM");
 
@@ -185,38 +204,32 @@ public class Methods {
 
             System.out.println("Please enter the expected duration of the check-up in minutes: ");
 
-            int durationInMinutes = 0;
-
-            while(durationInMinutes <= 0){
-                try{
-                    durationInMinutes = scanner.nextInt();
-                    scanner.nextLine();
-                    if(durationInMinutes <= 0) {
-                        System.err.println("Invalid option");
-                    }
-                }
-                catch(InputMismatchException e){
-                    System.err.println("Invalid option");
-                    scanner.nextLine();
-                }
-            }
-
-            duration = Duration.ofMinutes(durationInMinutes);
+            duration = enterDuration();
 
             for(Appointment appointment: appointments) {
                 if(appointment.getDate().equals(appointmentDate)) {
-                    if((appointmentTime.isAfter(appointment.getTime()) && appointmentTime.isBefore(appointment.getEndTime())) ||
-                            (appointmentTime.plusMinutes(duration.toMinutes()).isAfter(appointment.getTime()) &&
-                                    appointmentTime.plusMinutes(duration.toMinutes()).isBefore(appointment.getEndTime()))) {
+                    LocalTime minTime, maxTime;
+                    if(appointment.getTime().isAfter(appointmentTime)) maxTime = appointment.getTime();
+                    else maxTime = appointmentTime;
+                    if(appointment.getEndTime().isBefore(appointmentTime.plusMinutes(duration.toMinutes()))) minTime = appointment.getEndTime();
+                    else minTime = appointmentTime.plusMinutes(duration.toMinutes());
+                    if(minTime.isAfter(maxTime)) {
 
-
-                        System.err.println("There's already an appointment at the given date with the following details: ");
-                        System.out.println(appointment);
+                        System.err.println("\r\nThere's already an appointment at the given date and time with the following details: ");
+                        System.out.println(appointment + "\r\n");
                         dateCheck = false;
                         break;
                     }
                     else {
-                        dateCheck = true;
+                        if(appointmentTime.plusMinutes(duration.toMinutes()).isBefore(LocalTime.parse("16:00"))) {
+                            dateCheck = true;
+                        }
+                        else {
+                            System.err.println("\r\nThe appointment does not end before 16:00!\r\n");
+                            dateCheck = false;
+                            break;
+                        }
+
                     }
                 }
                 else {
@@ -225,11 +238,9 @@ public class Methods {
             }
         }
 
-
         appointments.add(new Appointment(patient, appointmentDate, appointmentTime, duration));
 
         writeToXml(appointments, filepath);
-
     }
 
     private static String enterName() {
@@ -245,7 +256,7 @@ public class Methods {
         return name;
     }
 
-    private static LocalDate enterDate() {
+    private static LocalDate enterDate(ArrayList<Appointment> appointments) {
         LocalDate date = LocalDate.parse("1900-01-01");
 
         while(date.isEqual(LocalDate.parse("1900-01-01"))){
@@ -258,6 +269,24 @@ public class Methods {
             }
         }
 
+        boolean dateTaken = false;
+        StringBuilder dateTakenString = new StringBuilder("\r\nPlease note that the following appointments already exist at the given date:\r\n\r\n");
+
+        for(Appointment appointment: appointments) {
+            if(appointment.getDate().equals(date)) {
+                dateTakenString.append(appointment);
+                dateTakenString.append("\r\n\r\n");
+                dateTaken = true;
+            }
+        }
+
+        if(!dateTaken) {
+            System.out.println(ANSI_YELLOW + "There are no appointments on the given date yet!" + ANSI_RESET);
+        }
+        else {
+            System.out.println(ANSI_YELLOW + dateTakenString + ANSI_RESET);
+        }
+
         return date;
     }
 
@@ -268,82 +297,235 @@ public class Methods {
             try{
                 String timeString = scanner.nextLine();
                 time = LocalTime.parse(timeString);
+                if(time.isBefore(LocalTime.parse("08:00"))) {
+                    System.err.println("Please note that the doctor does not begin examinations before 8:00!");
+                    time = LocalTime.parse("00:00");
+                }
+                else if(time.isAfter(LocalTime.parse("16:00"))) {
+                    System.err.println("Please note that the doctor does not begin examinations after 16:00!");
+                    time = LocalTime.parse("00:00");
+                    System.out.println("Enter a new time: ");
+                }
             }
             catch(DateTimeParseException e) {
                 System.err.println("Wrong format! Please write the time in the following format: HH:MM");
             }
         }
-
-
         return time;
     }
 
-    public static void deleteAppointment(ArrayList<Appointment> appointments, String filepath) {
-        System.out.println("You are now selecting which appointment to delete.");
-        listAppointments(appointments);
+    private static Duration enterDuration() {
+        int durationInMinutes = 0;
 
-        System.out.println("Enter the name of the patient you'd like to delete:");
-        String name = enterName();
-
-        boolean nameFound = choosePatient(appointments, name);
-
-        if (nameFound != true) {
-            return;
-        }
-        else {
-            System.out.println("Enter the birthday of the chosen patient in the following format to select and " +
-                    "confirm your deletion: YYYY-MM-DD");
-            LocalDate birthday = enterDate();
-
-            boolean deletable = false;
-            for(Appointment appointment: appointments) {
-                if(appointment.getPatient().getName().equals(name) && appointment.getPatient().getBirthday().equals(birthday)) {
-                    appointments.remove(appointment);
-                    writeToXml(appointments, filepath);
-                    deletable = true;
-                    break;
+        while(durationInMinutes <= 0) {
+            try {
+                durationInMinutes = scanner.nextInt();
+                scanner.nextLine();
+                if (durationInMinutes <= 0) {
+                    System.err.println("Invalid option");
                 }
-            }
-
-            if(deletable == false) {
-                System.err.println("The deletion was unsuccessful, due to a wrongly entered birthday!");
-            }
-            else {
-                System.out.println("Patient successfully deleted\r\n");
+            } catch (InputMismatchException e) {
+                System.err.println("Invalid option");
+                scanner.nextLine();
             }
         }
+        return Duration.ofMinutes(durationInMinutes);
     }
 
-    private static boolean choosePatient(ArrayList<Appointment> appointments, String name) {
-        boolean nameFound = false;
-        String nameFoundString = "The following patient birthdays were found under this name:\r\n";
+    private static String enterTaj() {
+        String taj = "";
+        while(taj.isEmpty()) {
+            taj = scanner.nextLine();
+            try {
+                Integer.parseInt(taj);
+                if (taj.length() != 9) {
+                    System.err.println("The TAJ number has 9 digits! Enter the correct TAJ number: ");
+                    taj = "";
+                }
+            } catch (NumberFormatException e) {
+                taj = "";
+                System.err.println("The TAJ number can only have 9 numbers in it! Enter the correct TAJ number: ");
+            }
+        }
+        return taj;
+    }
 
+    public static void deleteAppointment(ArrayList<Appointment> appointments, String filepath) {
+        System.out.println(ANSI_YELLOW + "You are now selecting which appointment to delete." + ANSI_RESET);
+        listAppointments(appointments);
+
+        System.out.println("Enter the TAJ number of the chosen patient to select and confirm your deletion: ");
+        String taj = enterTaj();
+
+        boolean deletable = false;
         for(Appointment appointment: appointments) {
-            if(name.equals(appointment.getPatient().getName())) {
-                nameFound = true;
-                nameFoundString += appointment.getPatient().getBirthday() + "\r\n";
+            if(appointment.getPatient().getTaj().equals(taj)) {
+                appointments.remove(appointment);
+                writeToXml(appointments, filepath);
+                deletable = true;
+                break;
             }
         }
 
-        if (nameFound != true) {
-            System.err.println("There are no appointments recorded under that patient name.");
+        if(!deletable) {
+            System.err.println("\r\nThe deletion was unsuccessful, due to a wrongly entered TAJ number!\r\n");
         }
         else {
-            System.out.print(nameFoundString);
+            System.out.println("\r\nPatient successfully deleted\r\n");
         }
 
-        return nameFound;
     }
 
     public static void modifyAppointment(ArrayList<Appointment> appointments, String filepath) {
-        System.out.println("You are now selecting which appointment to modify.");
+        System.out.println(ANSI_YELLOW + "\r\nYou are now adding modifying an existing patient in the database! " +
+                "Please note the following rules about appointments:\r\n- The doctor takes patients all days of the " +
+                "week from 08:00 to 16:00\r\n- A patient that already has an appointment can not have another one" +
+                " recorded in the system\r\n" + ANSI_RESET);
         listAppointments(appointments);
 
-        System.out.println("Enter the name of the patient whose appointment you'd like to modify:");
-        String name = enterName();
+        System.out.println("Enter the TAJ number of the patient whose appointment you'd like to modify:");
+        String taj = enterTaj(), name = "";
+        LocalDate date = LocalDate.parse("1900-01-01");
+        LocalTime time = LocalTime.parse("00:00");
+        Duration duration = Duration.ofMinutes(0);
 
+        boolean tajFound = false;
+        for(Appointment appointment: appointments) {
+            if(appointment.getPatient().getTaj().equals(taj)) {
+                name = appointment.getPatient().getName();
+                date = appointment.getDate();
+                time = appointment.getTime();
+                duration = appointment.getDuration();
+                appointments.remove(appointment);
+                tajFound = true;
+                break;
+            }
+        }
 
+        if(!tajFound) {
+            System.err.println("\r\nNo patients were found under that TAJ number!\r\n");
+            return;
+        }
+
+        Patient modifiedPatient = new Patient(name, taj);
+        Appointment appointmentToModify = new Appointment(modifiedPatient, date, time, duration);
+
+        int menu = -1;
+        System.out.println("Please enter one of the following numbers to choose which attribution you'd like to change: ");
+        String options = "\r\n1 - Name\r\n2 - TAJ number\r\n3 - Date, time and duration of appointment\r\n4 - Stop modification\r\n";
+
+        while(menu != 4) {
+            System.out.println(options);
+            try{
+                menu = scanner.nextInt();
+                scanner.nextLine();
+                if(menu < 1 || menu > 4) {
+                    System.err.println("Invalid option!");
+                }
+                else {
+                    switch(menu) {
+                        case 1: modifyName(appointmentToModify);
+                        System.out.println("\r\nName successfully changed!\r\n"); break; //name
+                        case 2: modifyTaj(appointmentToModify, appointments);
+                            System.out.println("\r\nTAJ successfully changed\r\n"); break; //taj
+                        case 3: modifyDateAndTime(appointmentToModify, appointments);
+                        System.out.println("\r\nDate, time and duration successfully changed!\r\n"); break; //date-time-duration
+                        case 4: break; //cancel
+                    }
+                }
+            }
+            catch(InputMismatchException e) {
+                System.err.println("Invalid option!");
+                scanner.nextLine();
+            }
+        }
+
+        appointments.add(appointmentToModify);
         writeToXml(appointments, filepath);
+    }
+
+    private static Appointment modifyName (Appointment appointmentToModify) {
+        System.out.println("Please enter the new name: ");
+        String name = enterName();
+        Patient patient = new Patient(name, appointmentToModify.getPatient().getTaj());
+        appointmentToModify.setPatient(patient);
+
+        return appointmentToModify;
+    }
+
+    private static Appointment modifyTaj (Appointment appointmentToModify, ArrayList<Appointment> appointments) {
+        String taj = "";
+
+        while(taj.isEmpty()) {
+            System.out.println("Please enter the new TAJ ");
+            taj = enterTaj();
+
+            for(Appointment appointment: appointments) {
+                if(appointment.getPatient().getTaj().equals(taj)) {
+                    System.err.println("There is already a user under that TAJ number!");
+                    taj = "";
+                }
+            }
+        }
+
+        Patient patient = new Patient(appointmentToModify.getPatient().getName(), taj);
+        appointmentToModify.setPatient(patient);
+        return appointmentToModify;
+    }
+
+    private static Appointment modifyDateAndTime (Appointment appointmentToModify, ArrayList<Appointment> appointments) {
+        boolean dateCheck = false;
+        LocalDate appointmentDate = LocalDate.parse("1000-01-01");
+        LocalTime appointmentTime = LocalTime.parse("00:00");
+        Duration duration = Duration.ofMinutes(0);
+
+        while(dateCheck == false) {
+            System.out.println("Please enter the date of the appointment in the following format: YYYY-MM-DD");
+
+            appointmentDate = enterDate(appointments);
+
+            System.out.println("Please enter the time of the appointment in the following format: HH:MM");
+
+            appointmentTime = enterTime();
+
+            System.out.println("Please enter the expected duration of the check-up in minutes: ");
+
+            duration = enterDuration();
+
+            for(Appointment appointment: appointments) {
+                if(appointment.getDate().equals(appointmentDate)) {
+                    if((appointmentTime.isAfter(appointment.getTime()) && appointmentTime.isBefore(appointment.getEndTime())) ||
+                            (appointmentTime.plusMinutes(duration.toMinutes()).isAfter(appointment.getTime()) &&
+                                    appointmentTime.plusMinutes(duration.toMinutes()).isBefore(appointment.getEndTime()))) {
+
+
+                        System.err.println("\r\nThere's already an appointment at the given date with the following details: ");
+                        System.out.println(appointment + "\r\n");
+                        dateCheck = false;
+                        break;
+                    }
+                    else {
+                        if(appointmentTime.plusMinutes(duration.toMinutes()).isBefore(LocalTime.parse("16:00"))) {
+                            dateCheck = true;
+                        }
+                        else {
+                            System.err.println("\r\nThe appointment does not end before 16:00!\r\n");
+                            dateCheck = false;
+                            break;
+                        }
+
+                    }
+                }
+                else {
+                    dateCheck = true;
+                }
+            }
+        }
+
+        appointmentToModify.setDate(appointmentDate);
+        appointmentToModify.setTime(appointmentTime);
+        appointmentToModify.setDuration(duration);
+        return appointmentToModify;
     }
 
 }

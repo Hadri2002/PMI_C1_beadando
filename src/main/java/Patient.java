@@ -2,7 +2,9 @@ import java.time.LocalDate;
 
 public class Patient {
     private String name;
-    private LocalDate birthday;
+    private String taj;
+
+    //private LocalDate birthday;
 
     public String getName() {
         return name;
@@ -12,19 +14,19 @@ public class Patient {
         this.name = name;
     }
 
-    public LocalDate getBirthday() {
-        return birthday;
+    public String getTaj() {
+        return taj;
     }
 
-    public void setBirthday(LocalDate birthday) {
-        this.birthday = birthday;
+    public void setTaj(String taj) {
+        this.taj = taj;
     }
 
     public Patient() {
     }
 
-    public Patient(String name, LocalDate birthday) {
+    public Patient(String name, String taj) {
         this.name = name;
-        this.birthday = birthday;
+        this.taj = taj;
     }
 }

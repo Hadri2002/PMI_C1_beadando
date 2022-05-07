@@ -60,8 +60,8 @@ public class Appointment {
 
     @Override
     public String toString() {
-        return "Name: " + this.getPatient().getName() + "\r\nBirtday: " +
-                this.getPatient().getBirthday() + "\r\nAppointment: " +
+        return "Name: " + this.getPatient().getName() + "\r\nTAJ number: " +
+                this.getPatient().getTaj() + "\r\nAppointment: " + this.getDate() + " " +
                 this.getTime() + " - " + this.getEndTime();
     }
 }
