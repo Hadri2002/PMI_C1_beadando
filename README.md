@@ -71,8 +71,7 @@ Feladatai:
 
 Bemeneti paraméterei:
 * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
-* String filepath - Az xml fájl útja
-
+* String filepath - Az xml fájl elérési útja
   
 **createChildElement**
   
@@ -87,4 +86,24 @@ Bemeneti paraméterei:
 * String tagName - A létrehozni kívánt tag neve
 * String value - A létrehozni kívánt tag tartalma
   
+**readFromXml**
+ 
+Publikus, statikus, időpontokat tartalmazó ArrayList-tel visszatérő függvény
+ 
+Feladatai:
+* Az xml fájlból kiolvasva az adatokat felépít egy ArrayList-et, ami az időpontokat tartalmazza
+ 
+Bemeneti paraméterei:
+* String filepath - Az xml fájl elérési útja
 
+**listAppointments**
+ 
+ Publikus, statikus, végrehajtó függvény
+ 
+ Feladatai:
+ * Az Appointment.toString() metódusa alapján kilistázza az eddig felvett időpontokat
+ 
+ Bemeneti paraméterei:
+ * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
+
+ 
