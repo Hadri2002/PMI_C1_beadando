@@ -106,4 +106,49 @@ Bemeneti paraméterei:
  Bemeneti paraméterei:
  * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
 
+ **addNewAppointment**
+ 
+ Publikus, statikus, végrehajtó függvény 
+ 
+ Feladatai:
+ * Létrehoz egy új időpontot annak minden adatával együtt
+ * Ennek érdekében meghívja az egyes segédfüggvényeket (amiket külön részletez a leírás lentebb)
+ * Leellenőrzi, hogy a létrehozott időpont ütközik-e másik időpontokkal, figyelmeztet erről
+ * Leellenőrzi, hogy a létrehozott TAJ szám alatt van-e már beteg
+ * Lekezeli a hibákat
+ * Hozzáadja az új időpont objektumot a listához, majd elmenti az xml fájlba a writeToXml metódus segítségével
+ 
+ Boolean-ok jelentései:
+ * patientCheck - hamis, amíg létre nem hozza a felhasználó helyesen a páciens objektum adatait
+ * nameCheck - igaz, ha már létezik az xml fájlban a beírt néven felhasználó és ez alapján ki is iratja őket (ezt szimplán figyelmeztetésként használja a program, mivel azonos néven létezhet több különböző TAJ-számú ember
+ * dateCheck -  hamis, amíg létre nem hozza a felhasználó helyesen az időponttal kapcsolatos adatokat
+ 
+ Bemenő paraméterei:
+ * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
+ * String filepath - Az xml fájl elérési útja
+
+ **enterName**
+ 
+ Privát, statikus, nevet tartalmazó Stringgel visszatérő függvény
+ 
+ Feladati:
+ * Segédmetódus, segítségével neveket lehet beolvasni 
+ * Addig folytatja a beolvasást, amíg a felhasználó üres nevet ad meg
+ 
+ **enterDate**
+ 
+ Privát, statikus, dátumot tartalmazó LocalDate változóval visszatérő függvény
+ 
+ Feladatai:
+ * Egy elérhetetlen kezdeti értékre beállítva a dátumot, az időpont beolvasását addig folytatja, amíg a felhasználó valós értéket nem ad meg
+ * Lekezeli, ha nem megfelelő formátumban történik a megadás
+ * Csak a következő naptól kezdve írható be dátum
+ * Leellenőrzi, hogy létezik-e már időpont az adott dátumon, erről tájékoztatja a felhasználót (dateTaken boolean igaz, ha van azon a dátumon időpont már az xml fájlban)
+ 
+ Bemenő paraméterei:
+  * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
+
+ **enterTime**
+ 
+ 
  
