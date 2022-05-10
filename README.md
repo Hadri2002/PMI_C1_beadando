@@ -201,4 +201,28 @@ Privát, statikus, percekben megadott időintervallumot tartalmazó Duration vá
  Privát, statikus, végrehajtó függvény
  
  Feladatai:
- *
+ * Megváltoztatja az adott időponton a beteg nevét
+ 
+ Bemenő paraméterei:
+ * A módosítandó Appointment
+ 
+ **modifyTaj**
+ 
+ Privát, statikus, végrehajtó függvény
+ 
+ Feladatai: 
+ * Ellenőrizve, hogy létezik-e már az újonnnan megadott TAJ szám, megváltoztatja azt
+ 
+ Bemenő paraméterei:
+ * A módosítandó Appointment
+
+ **modifyDateAndTime**
+ 
+ Privát, statikus, végrehajtó függvény
+ 
+ Feladatai: 
+ * Előzőek szerint ellenőrzi, hogy létezik-e már ott Appointment
+ * Megváltoztatja a dátumot
+ 
+  Bemenő paraméterei:
+ * A módosítandó Appointment
