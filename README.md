@@ -170,3 +170,27 @@ Privát, statikus, percekben megadott időintervallumot tartalmazó Duration vá
  
  Feladatai: 
  * Ellenőrzi, hogy 9 hosszú-e és számokból áll csak-e a megadott TAJ szám
+ 
+ **deleteAppointment**
+ 
+ Publikus, statikus, végrehajtó függvény
+ 
+ Feladatai:
+ * TAJ szám alapján megkeresi az adott időpontot, törli azt, majd frissíti az XML fájlt
+ * Ha nem létezik a TAJ szám, kilép
+ 
+  Bemenő paraméterei:
+ * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
+ * String filepath - Az xml fájl elérési útja
+ 
+ **modifyAppointment**
+ 
+ Publikus, statikus, végrehajtó függvény
+ 
+ Feladatai:
+ *
+ *
+ 
+  Bemenő paraméterei:
+ * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
+ * String filepath - Az xml fájl elérési útja
