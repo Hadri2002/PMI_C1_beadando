@@ -150,5 +150,16 @@ Bemeneti paraméterei:
 
  **enterTime**
  
+ Privát, statikus, időpontot tartalmazó LocalTime változóval visszatérő függvény
  
+ Feladatai:
+ * Egy elérhetetlen kezdeti értékre beállítva az időt, az időpont beolvasását addig folytatja, amíg a felhasználó valós értéket nem ad meg
+ * Lekezeli, ha nem megfelelő formátumban történik a megadás
+ * Figyeli, hogy csak 8-16-ig lehessen az időpont megadva
+ 
+ **enterDuration**
+ 
+Privát, statikus, percekben megadott időintervallumot tartalmazó Duration változóval visszatérő függvény
+ 
+ Feladatai:
  
