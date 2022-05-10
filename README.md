@@ -188,9 +188,17 @@ Privát, statikus, percekben megadott időintervallumot tartalmazó Duration vá
  Publikus, statikus, végrehajtó függvény
  
  Feladatai:
- *
- *
+ * TAJ szám alapján megkeresi az adott időpontot, törli ideiglenesen azt, majd lementi az adatait egy új változóba (appointmentToModify, modifiedPatient)
+ * menü segítségével kiválaszthatjuk melyik adatot változtatjuk meg, segédfüggvényekkel megváltoztatja azt
+ * hozzáadja a listához a módosított időpontot, frissíti az XML fájlt
  
   Bemenő paraméterei:
  * ArrayList<Appointment> appointments - Az időpontokat tartalmazó dinamikus lista
  * String filepath - Az xml fájl elérési útja
+ 
+ **modifyName*
+ 
+ Privát, statikus, végrehajtó függvény
+ 
+ Feladatai:
+ *
