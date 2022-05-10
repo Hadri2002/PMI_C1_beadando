@@ -162,4 +162,11 @@ Bemeneti paraméterei:
 Privát, statikus, percekben megadott időintervallumot tartalmazó Duration változóval visszatérő függvény
  
  Feladatai:
+ * percekben megadott értéket alakít át Duration változóvá, lekezeli a hibákat
+
+ **enterTaj**
  
+ Privát, statikus, Stringben tárolt TAJ szám értékével tér vissza
+ 
+ Feladatai: 
+ * Ellenőrzi, hogy 9 hosszú-e és számokból áll csak-e a megadott TAJ szám
