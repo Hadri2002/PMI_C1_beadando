@@ -22,7 +22,7 @@ Ez tartalmazza a menü felépítését, futtatásával használható a program. 
 
 A páciens objektumok létrehozásához használható osztály, tartalmazza a páciens adatait, illetve getter, setter és constructor függvényeket.
 
-Tagváltozói:
+Osztályváltozói:
 * String name - Páciens neve
 * String taj - Páciens TAJ száma
 
@@ -30,7 +30,7 @@ Tagváltozói:
 
 Az időpont osztály tartalmazza az időpontok tagváltozóit, constructor-ait, getter-setter függvényeit, illetve egy toString metódust, ami segítségével az objektumok kiiratásakor a név, taj szám, is az időintervallum jelenik meg
 
-Tagváltozói:
+Osztályváltozói:
 * Patient patient - A páciens objektum
 * LocalDate date - Az időpont dátuma
 * LocalTime time - Az időpont kezdetének ideje
