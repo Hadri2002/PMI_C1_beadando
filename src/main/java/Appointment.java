@@ -32,6 +32,7 @@ public class Appointment {
 
     public void setTime(LocalTime time) {
         this.time = time;
+        this.endTime = this.time.plusMinutes(this.duration.toMinutes());
     }
 
     public Duration getDuration() {
@@ -40,14 +41,11 @@ public class Appointment {
 
     public void setDuration(Duration duration) {
         this.duration = duration;
+        this.endTime = this.time.plusMinutes(this.duration.toMinutes());
     }
 
     public LocalTime getEndTime() {
         return endTime;
-    }
-
-    public Appointment() {
-         this.endTime = this.time.plusMinutes(this.duration.toMinutes());
     }
 
     public Appointment(Patient patient, LocalDate date, LocalTime time, Duration duration) {

@@ -12,7 +12,7 @@ public class Main {
         ArrayList<Appointment> appointments = Methods.readFromXml(filepath);
 
         System.out.println();
-        System.out.println(ANSI_YELLOW + "Welcome to Dr. Louis Creed's general practitioner clinic!" + ANSI_RESET);
+        System.out.println(ANSI_YELLOW + "Welcome to Dr. Louis Creed's practitioner clinic!" + ANSI_RESET);
         System.out.println();
         System.out.println("Please choose one of the options from the menu below by typing the correct number!");
 

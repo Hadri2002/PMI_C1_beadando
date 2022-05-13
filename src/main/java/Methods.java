@@ -44,10 +44,8 @@ public class Methods {
 
             TransformerFactory transformerFactory = TransformerFactory.newInstance();
             Transformer transformer = transformerFactory.newTransformer();
-
             DOMSource source = new DOMSource(document);
             StreamResult result = new StreamResult(new FileOutputStream(filepath));
-
             transformer.setOutputProperty(OutputKeys.INDENT, "yes");
             transformer.transform(source, result);
         }
@@ -67,7 +65,6 @@ public class Methods {
 
         try{
             Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(filepath);
-
             Element rootElement = document.getDocumentElement();
             NodeList childNodesList = rootElement.getChildNodes();
             Node node;
@@ -79,15 +76,11 @@ public class Methods {
                     String name = "", taj = "", date = "1900-10-22", time = "00:00", duration = "0";
                     for (int j = 0; j < childNodesOfAppointmentTag.getLength(); j++) {
 
-
                         if (childNodesOfAppointmentTag.item(j).getNodeType() == Node.ELEMENT_NODE) {
-
                             if(childNodesOfAppointmentTag.item(j).getNodeName().equals("patient")) {
                                 NodeList patientNodes = childNodesOfAppointmentTag.item(j).getChildNodes();
                                 for(int h = 0; h < patientNodes.getLength(); h++) {
-
                                     if(patientNodes.item(h).getNodeType() == Node.ELEMENT_NODE) {
-
                                         switch(patientNodes.item(h).getNodeName()) {
                                             case "name": name = patientNodes.item(h).getTextContent(); break;
                                             case "taj": taj = patientNodes.item(h).getTextContent(); break;
@@ -102,10 +95,8 @@ public class Methods {
                                     case "duration": duration = childNodesOfAppointmentTag.item(j).getTextContent(); break;
                                 }
                             }
-
                         }
                     }
-
                     try{
                         Patient patient = new Patient(name, taj);
                         Appointment appointment = new Appointment(patient, LocalDate.parse(date), LocalTime.parse(time), Duration.ofMinutes(Integer.parseInt(duration)));
@@ -132,17 +123,16 @@ public class Methods {
             System.out.println(appointment);
             System.out.println();
         }
-
     }
 
-    public static void addNewAppointment(ArrayList<Appointment> appointments, String filepath) {
-        System.out.println(ANSI_YELLOW + "\r\nYou are now adding a new patient into the database! Please note the following rules about " +
-                "appointments:\r\n- The doctor takes patients all days of the week from 08:00 to 16:00\r\n- " +
-                "A patient that already has an appointment can not have another one recorded in the system (this is based on TAJ numbers alone)\r\n" + ANSI_RESET);
+    public static void addNewAppointment (ArrayList<Appointment> appointments, String filepath) {
+        System.out.println(ANSI_YELLOW + "\r\nYou are now adding a new patient into the database! Please note the " +
+                "following rules about appointments:\r\n- The doctor takes patients all days of the week from 08:00 to " +
+                "16:00\r\n- A patient that already has an appointment can not have another one recorded in the system " +
+                "(this is based on TAJ numbers alone)\r\n- You can only enter appointment dates for tomorrow\r\n" + ANSI_RESET);
 
         boolean patientCheck = false;
         Patient patient = new Patient();
-
         while(!patientCheck) {
             System.out.println("Enter the name of the new patient: ");
             String name = enterName();
@@ -167,7 +157,6 @@ public class Methods {
 
             System.out.println("Enter the TAJ number of the patient: ");
             String taj = enterTaj();
-
             patient = new Patient(name, taj);
 
             for(Appointment appointment: appointments) {
@@ -220,22 +209,18 @@ public class Methods {
                         dateCheck = false;
                         break;
                     }
-                    else {
-                        if(appointmentTime.plusMinutes(duration.toMinutes()).isBefore(LocalTime.parse("16:00"))) {
-                            dateCheck = true;
-                        }
-                        else {
-                            System.err.println("\r\nThe appointment does not end before 16:00!\r\n");
-                            dateCheck = false;
-                            break;
-                        }
-
-                    }
                 }
-                else {
+
+                if(appointmentTime.plusMinutes(duration.toMinutes()).isBefore(LocalTime.parse("16:00"))) {
                     dateCheck = true;
                 }
+                else {
+                    System.err.println("\r\nThe appointment does not end before 16:00!\r\n");
+                    dateCheck = false;
+                    break;
+                }
             }
+
         }
 
         appointments.add(new Appointment(patient, appointmentDate, appointmentTime, duration));
@@ -245,24 +230,25 @@ public class Methods {
 
     private static String enterName() {
         String name = "";
-
         while(name.isEmpty()) {
             name = scanner.nextLine();
             if(name.isEmpty()) {
                 System.err.println("You did not enter a name");
             }
         }
-
         return name;
     }
 
     private static LocalDate enterDate(ArrayList<Appointment> appointments) {
         LocalDate date = LocalDate.parse("1900-01-01");
-
         while(date.isEqual(LocalDate.parse("1900-01-01"))){
             try{
                 String dateString = scanner.nextLine();
                 date = LocalDate.parse(dateString);
+                if(!date.isAfter(LocalDate.now())) {
+                    date = LocalDate.parse("1900-01-01");
+                    System.err.println("You can only enter appointments from the next day on!");
+                }
             }
             catch(DateTimeParseException e) {
                 System.err.println("Wrong format! Please write the date in the following format: YYYY-MM-DD");
@@ -271,7 +257,6 @@ public class Methods {
 
         boolean dateTaken = false;
         StringBuilder dateTakenString = new StringBuilder("\r\nPlease note that the following appointments already exist at the given date:\r\n\r\n");
-
         for(Appointment appointment: appointments) {
             if(appointment.getDate().equals(date)) {
                 dateTakenString.append(appointment);
@@ -286,13 +271,11 @@ public class Methods {
         else {
             System.out.println(ANSI_YELLOW + dateTakenString + ANSI_RESET);
         }
-
         return date;
     }
 
     private static LocalTime enterTime() {
         LocalTime time = LocalTime.parse("00:00");
-
         while(time.compareTo(LocalTime.parse("00:00")) == 0){
             try{
                 String timeString = scanner.nextLine();
@@ -316,7 +299,6 @@ public class Methods {
 
     private static Duration enterDuration() {
         int durationInMinutes = 0;
-
         while(durationInMinutes <= 0) {
             try {
                 durationInMinutes = scanner.nextInt();
@@ -353,7 +335,6 @@ public class Methods {
     public static void deleteAppointment(ArrayList<Appointment> appointments, String filepath) {
         System.out.println(ANSI_YELLOW + "You are now selecting which appointment to delete." + ANSI_RESET);
         listAppointments(appointments);
-
         System.out.println("Enter the TAJ number of the chosen patient to select and confirm your deletion: ");
         String taj = enterTaj();
 
@@ -373,7 +354,6 @@ public class Methods {
         else {
             System.out.println("\r\nPatient successfully deleted\r\n");
         }
-
     }
 
     public static void modifyAppointment(ArrayList<Appointment> appointments, String filepath) {
@@ -439,21 +419,18 @@ public class Methods {
                 scanner.nextLine();
             }
         }
-
         appointments.add(appointmentToModify);
         writeToXml(appointments, filepath);
     }
 
-    private static Appointment modifyName (Appointment appointmentToModify) {
+    private static void modifyName (Appointment appointmentToModify) {
         System.out.println("Please enter the new name: ");
         String name = enterName();
         Patient patient = new Patient(name, appointmentToModify.getPatient().getTaj());
         appointmentToModify.setPatient(patient);
-
-        return appointmentToModify;
     }
 
-    private static Appointment modifyTaj (Appointment appointmentToModify, ArrayList<Appointment> appointments) {
+    private static void modifyTaj (Appointment appointmentToModify, ArrayList<Appointment> appointments) {
         String taj = "";
 
         while(taj.isEmpty()) {
@@ -470,10 +447,9 @@ public class Methods {
 
         Patient patient = new Patient(appointmentToModify.getPatient().getName(), taj);
         appointmentToModify.setPatient(patient);
-        return appointmentToModify;
     }
 
-    private static Appointment modifyDateAndTime (Appointment appointmentToModify, ArrayList<Appointment> appointments) {
+    private static void modifyDateAndTime (Appointment appointmentToModify, ArrayList<Appointment> appointments) {
         boolean dateCheck = false;
         LocalDate appointmentDate = LocalDate.parse("1000-01-01");
         LocalTime appointmentTime = LocalTime.parse("00:00");
@@ -494,38 +470,33 @@ public class Methods {
 
             for(Appointment appointment: appointments) {
                 if(appointment.getDate().equals(appointmentDate)) {
-                    if((appointmentTime.isAfter(appointment.getTime()) && appointmentTime.isBefore(appointment.getEndTime())) ||
-                            (appointmentTime.plusMinutes(duration.toMinutes()).isAfter(appointment.getTime()) &&
-                                    appointmentTime.plusMinutes(duration.toMinutes()).isBefore(appointment.getEndTime()))) {
+                    LocalTime minTime, maxTime;
+                    if(appointment.getTime().isAfter(appointmentTime)) maxTime = appointment.getTime();
+                    else maxTime = appointmentTime;
+                    if(appointment.getEndTime().isBefore(appointmentTime.plusMinutes(duration.toMinutes()))) minTime = appointment.getEndTime();
+                    else minTime = appointmentTime.plusMinutes(duration.toMinutes());
+                    if(minTime.isAfter(maxTime)) {
 
-
-                        System.err.println("\r\nThere's already an appointment at the given date with the following details: ");
+                        System.err.println("\r\nThere's already an appointment at the given date and time with the following details: ");
                         System.out.println(appointment + "\r\n");
                         dateCheck = false;
                         break;
                     }
-                    else {
-                        if(appointmentTime.plusMinutes(duration.toMinutes()).isBefore(LocalTime.parse("16:00"))) {
-                            dateCheck = true;
-                        }
-                        else {
-                            System.err.println("\r\nThe appointment does not end before 16:00!\r\n");
-                            dateCheck = false;
-                            break;
-                        }
+                }
 
-                    }
+                if(appointmentTime.plusMinutes(duration.toMinutes()).isBefore(LocalTime.parse("16:00"))) {
+                    dateCheck = true;
                 }
                 else {
-                    dateCheck = true;
+                    System.err.println("\r\nThe appointment does not end before 16:00!\r\n");
+                    dateCheck = false;
+                    break;
                 }
             }
         }
-
         appointmentToModify.setDate(appointmentDate);
         appointmentToModify.setTime(appointmentTime);
         appointmentToModify.setDuration(duration);
-        return appointmentToModify;
     }
 
 }
