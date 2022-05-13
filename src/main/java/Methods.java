@@ -455,7 +455,7 @@ public class Methods {
         LocalTime appointmentTime = LocalTime.parse("00:00");
         Duration duration = Duration.ofMinutes(0);
 
-        while(dateCheck == false) {
+        while(!dateCheck) {
             System.out.println("Please enter the date of the appointment in the following format: YYYY-MM-DD");
 
             appointmentDate = enterDate(appointments);

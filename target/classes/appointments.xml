@@ -20,20 +20,11 @@
 </appointment>
 <appointment>
 <patient>
-<name>Andrásy Juvenál</name>
-<taj>112211222</taj>
-</patient>
-<date>2022-05-10</date>
-<time>10:50</time>
-<duration>35</duration>
-</appointment>
-<appointment>
-<patient>
 <name>Horváth Adrienn</name>
-<taj>111123423</taj>
+<taj>125242234</taj>
 </patient>
 <date>2022-10-12</date>
 <time>10:00</time>
-<duration>30</duration>
+<duration>10</duration>
 </appointment>
 </appointments>

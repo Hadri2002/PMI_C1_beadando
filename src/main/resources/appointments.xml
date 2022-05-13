@@ -2,15 +2,6 @@
 <appointments>
 <appointment>
 <patient>
-<name>Masszi Alíz</name>
-<taj>134729472</taj>
-</patient>
-<date>2022-10-12</date>
-<time>08:00</time>
-<duration>120</duration>
-</appointment>
-<appointment>
-<patient>
 <name>Trócsányi Boglárka</name>
 <taj>114534276</taj>
 </patient>
@@ -26,5 +17,14 @@
 <date>2022-10-12</date>
 <time>10:00</time>
 <duration>10</duration>
+</appointment>
+<appointment>
+<patient>
+<name>Masszi Alíz</name>
+<taj>134729472</taj>
+</patient>
+<date>2022-05-17</date>
+<time>12:00</time>
+<duration>45</duration>
 </appointment>
 </appointments>
